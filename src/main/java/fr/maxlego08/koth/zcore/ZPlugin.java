@@ -51,7 +51,7 @@ public abstract class ZPlugin extends JavaPlugin {
 
     protected void preEnable() {
 
-        LocalPlaceholder.getInstance().setPlugin((KothPlugin) this);
+        LocalPlaceholder.getInstance().setPlugin(this);
         Placeholder.getPlaceholder();
 
         this.enableTime = System.currentTimeMillis();

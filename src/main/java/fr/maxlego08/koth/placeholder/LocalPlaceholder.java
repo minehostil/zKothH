@@ -8,22 +8,23 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.Plugin;
 
-import fr.maxlego08.koth.KothPlugin;
+import fr.maxlego08.koth.api.LocalPlaceholderApi;
 
-public class LocalPlaceholder {
-	
-	private KothPlugin plugin;
+public class LocalPlaceholder implements LocalPlaceholderApi {
+
+	private Plugin plugin;
 	private String prefix = "template";
 	private final Pattern pattern = Pattern.compile("[%]([^%]+)[%]");
 	private final List<AutoPlaceholder> autoPlaceholders = new ArrayList<AutoPlaceholder>();
 
 	/**
 	 * Set plugin instance
-	 * 
+	 *
 	 * @param plugin
 	 */
-	public void setPlugin(KothPlugin plugin) {
+	public void setPlugin(Plugin plugin) {
 		this.plugin = plugin;
 	}
 
@@ -74,12 +75,12 @@ public class LocalPlaceholder {
 				placeholder = placeholder.replace(stringPlaceholder, replace);
 			}
 		}
-		
+
 		return placeholder;
 	}
 
 	/**
-	 * 
+	 *
 	 * @param player
 	 * @param lore
 	 * @return
@@ -91,13 +92,14 @@ public class LocalPlaceholder {
 
 	/**
 	 * Custom placeholder
-	 * 
+	 *
 	 * @param player
 	 * @param string
 	 * @return
 	 */
+	@Override
 	public String onRequest(Player player, String string) {
-		
+
 		Optional<AutoPlaceholder> optional = this.autoPlaceholders.stream()
 				.filter(e -> string.startsWith(e.getStartWith())).findFirst();
 		if (optional.isPresent()) {
@@ -107,20 +109,22 @@ public class LocalPlaceholder {
 			return autoPlaceholder.accept(player, value);
 
 		}
-		
+
 		return null;
 	}
-	
+
 	public void register(String startWith, ReturnBiConsumer<Player, String, String> biConsumer) {
 		this.autoPlaceholders.add(new AutoPlaceholder(startWith, biConsumer));
 	}
-	
+
+	@Override
 	public String getPrefix() {
 		return prefix;
 	}
-	
-	public KothPlugin getPlugin() {
+
+	@Override
+	public Plugin getPlugin() {
 		return plugin;
 	}
-	
+
 }

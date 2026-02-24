@@ -1,31 +1,25 @@
 package fr.maxlego08.koth.hook;
 
-import fr.maxlego08.koth.KothPlugin;
+import fr.maxlego08.koth.api.KothPlugin;
 import fr.maxlego08.koth.api.KothScoreboard;
-import fr.maxlego08.koth.hook.scoreboard.FeatherBoardHook;
-import fr.maxlego08.koth.hook.scoreboard.SternalBoardHook;
-import fr.maxlego08.koth.hook.scoreboard.TabHook;
-import fr.maxlego08.koth.hook.scoreboard.TitleManagerHook;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 
-import java.lang.reflect.InvocationTargetException;
-
 public enum ScoreboardPlugin {
 
-    FEATHERBOARD("FeatherBoard", FeatherBoardHook.class),
-    TAB("TAB", TabHook.class),
-    STERNALBOARD("SternalBoard", SternalBoardHook.class),
-    TITLEMANAGER("TitleManager", TitleManagerHook.class),
+    FEATHERBOARD("FeatherBoard", "fr.maxlego08.koth.hook.scoreboard.FeatherBoardHook"),
+    TAB("TAB", "fr.maxlego08.koth.hook.scoreboard.TabHook"),
+    STERNALBOARD("SternalBoard", "fr.maxlego08.koth.hook.scoreboard.SternalBoardHook"),
+    TITLEMANAGER("TitleManager", "fr.maxlego08.koth.hook.scoreboard.TitleManagerHook"),
 
     ;
 
     private final String pluginName;
-    private final Class<? extends KothScoreboard> scoreboardClass;
+    private final String className;
 
-    ScoreboardPlugin(String pluginName, Class<? extends KothScoreboard> scoreboardClass) {
+    ScoreboardPlugin(String pluginName, String className) {
         this.pluginName = pluginName;
-        this.scoreboardClass = scoreboardClass;
+        this.className = className;
     }
 
     public String getPluginName() {
@@ -39,9 +33,9 @@ public enum ScoreboardPlugin {
 
     public KothScoreboard init(KothPlugin plugin) {
         try {
-            return scoreboardClass.getConstructor(KothPlugin.class).newInstance(plugin);
-        } catch (InstantiationException | IllegalAccessException | InvocationTargetException |
-                 NoSuchMethodException exception) {
+            Class<?> clazz = Class.forName(this.className);
+            return (KothScoreboard) clazz.getConstructor(KothPlugin.class).newInstance(plugin);
+        } catch (Exception exception) {
             exception.printStackTrace();
         }
         return null;

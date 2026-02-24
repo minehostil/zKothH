@@ -1,21 +1,23 @@
 package fr.maxlego08.koth;
 
+import fr.maxlego08.koth.api.Koth;
 import fr.maxlego08.koth.api.KothHologram;
 import fr.maxlego08.koth.api.KothScoreboard;
 import fr.maxlego08.koth.command.commands.CommandKoth;
-import fr.maxlego08.koth.hologram.DecentHologram;
 import fr.maxlego08.koth.hologram.EmptyHologram;
 import fr.maxlego08.koth.hook.ScoreboardPlugin;
 import fr.maxlego08.koth.hook.scoreboard.DefaultHook;
 import fr.maxlego08.koth.placeholder.LocalPlaceholder;
 import fr.maxlego08.koth.save.Config;
 import fr.maxlego08.koth.save.MessageLoader;
-import fr.maxlego08.koth.scheduler.ZkothImplementation;
 import fr.maxlego08.koth.scoreboard.ScoreBoardManager;
 import fr.maxlego08.koth.storage.StorageManager;
 import fr.maxlego08.koth.zcore.ZPlugin;
 import fr.maxlego08.koth.zcore.logger.Logger;
 import fr.maxlego08.koth.zcore.utils.plugins.Plugins;
+
+import java.util.List;
+import java.util.Optional;
 
 /**
  * System to create your plugins very simply Projet:
@@ -23,7 +25,7 @@ import fr.maxlego08.koth.zcore.utils.plugins.Plugins;
  *
  * @author Maxlego08
  */
-public class KothPlugin extends ZPlugin {
+public class KothPlugin extends ZPlugin implements fr.maxlego08.koth.api.KothPlugin {
 
     private final ScoreBoardManager scoreBoardManager = new ScoreBoardManager(this);
     private KothManager kothManager;
@@ -67,13 +69,23 @@ public class KothPlugin extends ZPlugin {
 
         if (this.isEnable(Plugins.ZSCHEDULERS)) {
             Logger.info("Register zScheduler implementation", Logger.LogType.INFO);
-            ZkothImplementation implementation = new ZkothImplementation(this);
-            implementation.register();
+            try {
+                Class<?> clazz = Class.forName("fr.maxlego08.koth.scheduler.ZkothImplementation");
+                Object implementation = clazz.getConstructor(fr.maxlego08.koth.api.KothPlugin.class).newInstance(this);
+                clazz.getMethod("register").invoke(implementation);
+            } catch (Exception exception) {
+                exception.printStackTrace();
+            }
         }
 
         if (this.isEnable(Plugins.DH)) {
             Logger.info("Register DecentHologram implementation", Logger.LogType.INFO);
-            this.kothHologram = new DecentHologram();
+            try {
+                Class<?> clazz = Class.forName("fr.maxlego08.koth.hologram.DecentHologram");
+                this.kothHologram = (KothHologram) clazz.getConstructor().newInstance();
+            } catch (Exception exception) {
+                exception.printStackTrace();
+            }
         }
 
         KothPlaceholder kothPlaceholder = new KothPlaceholder(this.kothManager);
@@ -112,5 +124,20 @@ public class KothPlugin extends ZPlugin {
 
     public KothHologram getKothHologram() {
         return kothHologram;
+    }
+
+    @Override
+    public List<Koth> getKoths() {
+        return this.kothManager.getKoths();
+    }
+
+    @Override
+    public Optional<Koth> getKoth(String name) {
+        return this.kothManager.getKoth(name);
+    }
+
+    @Override
+    public void onTeamDisband(String teamId) {
+        this.storageManager.onTeamDisband(teamId);
     }
 }

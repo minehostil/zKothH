@@ -1,41 +1,30 @@
 package fr.maxlego08.koth.hook;
 
-import fr.maxlego08.koth.KothPlugin;
+import fr.maxlego08.koth.api.KothPlugin;
 import fr.maxlego08.koth.api.KothTeam;
-import fr.maxlego08.koth.hook.teams.BetterTeamHook;
-import fr.maxlego08.koth.hook.teams.FactionsUUIDHook;
-import fr.maxlego08.koth.hook.teams.GangsHook;
-import fr.maxlego08.koth.hook.teams.HuskTownHook;
-import fr.maxlego08.koth.hook.teams.LandHook;
-import fr.maxlego08.koth.hook.teams.SaberFactionHook;
-import fr.maxlego08.koth.hook.teams.SimpleClanHook;
-import fr.maxlego08.koth.hook.teams.SuperiorSkyblock2Hook;
-import fr.maxlego08.koth.hook.teams.UltimateClan;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 
-import java.lang.reflect.InvocationTargetException;
-
 public enum TeamPlugin {
 
-    LANDS("Lands", LandHook.class),
-    HUSKTOWN("HuskTowns", HuskTownHook.class),
-    SUPERIORSKYBLOCK("SuperiorSkyblock2", SuperiorSkyblock2Hook.class),
-    BETTERTEAMS("BetterTeams", BetterTeamHook.class),
-    FACTIONS("Factions", SaberFactionHook.class),
-    FACTIONSUUID("FactionsUUID", FactionsUUIDHook.class),
-    SIMPLECLANS("SimpleClans", SimpleClanHook.class),
-    GANGSPLUS("GangsPlus", GangsHook.class),
-    ULTIMATE_CLANS("UltimateClans", UltimateClan.class),
+    LANDS("Lands", "fr.maxlego08.koth.hook.teams.LandHook"),
+    HUSKTOWN("HuskTowns", "fr.maxlego08.koth.hook.teams.HuskTownHook"),
+    SUPERIORSKYBLOCK("SuperiorSkyblock2", "fr.maxlego08.koth.hook.teams.SuperiorSkyblock2Hook"),
+    BETTERTEAMS("BetterTeams", "fr.maxlego08.koth.hook.teams.BetterTeamHook"),
+    FACTIONS("Factions", "fr.maxlego08.koth.hook.teams.SaberFactionHook"),
+    FACTIONSUUID("FactionsUUID", "fr.maxlego08.koth.hook.teams.FactionsUUIDHook"),
+    SIMPLECLANS("SimpleClans", "fr.maxlego08.koth.hook.teams.SimpleClanHook"),
+    GANGSPLUS("GangsPlus", "fr.maxlego08.koth.hook.teams.GangsHook"),
+    ULTIMATE_CLANS("UltimateClans", "fr.maxlego08.koth.hook.teams.UltimateClan"),
 
     ;
 
     private final String pluginName;
-    private final Class<? extends KothTeam> teamHook;
+    private final String className;
 
-    TeamPlugin(String pluginName, Class<? extends KothTeam> teamHook) {
+    TeamPlugin(String pluginName, String className) {
         this.pluginName = pluginName;
-        this.teamHook = teamHook;
+        this.className = className;
     }
 
     public String getPluginName() {
@@ -49,9 +38,9 @@ public enum TeamPlugin {
 
     public KothTeam init(KothPlugin plugin) {
         try {
-            return teamHook.getConstructor(KothPlugin.class).newInstance(plugin);
-        } catch (InstantiationException | IllegalAccessException | InvocationTargetException |
-                 NoSuchMethodException exception) {
+            Class<?> clazz = Class.forName(this.className);
+            return (KothTeam) clazz.getConstructor(KothPlugin.class).newInstance(plugin);
+        } catch (Exception exception) {
             exception.printStackTrace();
         }
         return null;

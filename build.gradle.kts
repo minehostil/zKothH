@@ -53,6 +53,7 @@ allprojects {
 
     tasks.compileJava {
         options.encoding = "UTF-8"
+        options.release = 21
     }
 
     tasks.javadoc {
@@ -63,25 +64,7 @@ allprojects {
 
     dependencies {
         compileOnly("io.papermc.paper:paper-api:1.21.3-R0.1-SNAPSHOT")
-        compileOnly("me.clip:placeholderapi:2.11.6")
         compileOnly("com.mojang:authlib:3.11.50")
-        compileOnly("com.github.booksaw:BetterTeams:4.8.0")
-        compileOnly("com.github.MrUniverse44:ScaredClansAPI:0.3")
-        compileOnly("com.github.NEZNAMY:TAB-API:5.2.3")
-        compileOnly("net.william278:husktowns:3.0.4")
-        compileOnly("com.github.angeschossen:LandsAPI:6.44.6")
-        compileOnly("com.github.Maxlego08:zSchedulers:1.0.5")
-        compileOnly("com.bgsoftware:SuperiorSkyblockAPI:2022.9")
-        compileOnly("net.sacredlabyrinth.phaed.simpleclans:SimpleClans:2.15.2")
-        compileOnly("com.github.UlrichBR:UClansV7-API:7.13.0-R1")
-        compileOnly("dev.kitteh:factions:4.0.0-rc.1")
-
-        compileOnly(files("libs/SternalBoard-2.2.8-all.jar"))
-        compileOnly(files("libs/FeatherBoard.jar"))
-        compileOnly(files("libs/TitleManager-2.3.6.jar"))
-        compileOnly(files("libs/DecentHolograms-2.8.6.jar"))
-        compileOnly(files("libs/SaberFactions.jar"))
-        compileOnly(files("libs/GangsPlus-2.6.4.jar"))
 
         implementation("com.github.cryptomorin:XSeries:9.4.0")
         implementation("fr.mrmicky:fastboard:2.1.5")
@@ -99,7 +82,13 @@ allprojects {
 
 dependencies {
     api(projects.api)
-    // api(projects.hooks)
+
+    // Include all hooks dynamically
+    file("Hooks").listFiles()?.filter {
+        it.isDirectory && !it.name.equals("build")
+    }?.forEach { hookDir ->
+        implementation(project(":Hooks:${hookDir.name}"))
+    }
 }
 
 tasks {
