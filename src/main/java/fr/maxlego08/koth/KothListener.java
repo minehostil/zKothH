@@ -18,6 +18,7 @@ import org.bukkit.entity.Shulker;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -29,6 +30,8 @@ import java.util.List;
 import java.util.Optional;
 
 public class KothListener extends ListenerAdapter {
+
+    private static final long SHULKER_REMOVE_DELAY_TICKS = 20L * 60L; // 1 minute in ticks
 
     private final KothPlugin plugin;
     private final KothManager manager;
@@ -77,7 +80,7 @@ public class KothListener extends ListenerAdapter {
 
                 entity = shulker;
 
-                Bukkit.getScheduler().runTaskLater(this.plugin, shulker::remove, 20 * 60);
+                Bukkit.getScheduler().runTaskLater(this.plugin, shulker::remove, SHULKER_REMOVE_DELAY_TICKS);
             }
 
             selection.action(action, location, entity);
@@ -103,6 +106,14 @@ public class KothListener extends ListenerAdapter {
             List<Koth> koths = this.manager.getActiveKoths();
             koths.forEach(koth -> koth.playerMove(player, this.manager.getKothTeam()));
         }
+    }
+
+    @Override
+    protected void onQuit(PlayerQuitEvent event, Player player) {
+        // Clean up player selection data
+        this.manager.removeSelection(player.getUniqueId());
+        // Clean up player scoreboard
+        this.plugin.getScoreBoardManager().delete(player);
     }
 
     @Override

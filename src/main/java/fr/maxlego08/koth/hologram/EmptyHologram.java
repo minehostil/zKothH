@@ -3,30 +3,29 @@ package fr.maxlego08.koth.hologram;
 import fr.maxlego08.koth.api.Koth;
 import fr.maxlego08.koth.api.KothHologram;
 
+/**
+ * No-op implementation of KothHologram used when no hologram plugin is available.
+ */
 public class EmptyHologram implements KothHologram {
 
     @Override
     public void start(Koth koth) {
-        // TODO Auto-generated method stub
-
+        // No hologram plugin available - do nothing
     }
 
     @Override
     public void end(Koth koth) {
-        // TODO Auto-generated method stub
-
+        // No hologram plugin available - do nothing
     }
 
     @Override
     public void update(Koth koth) {
-        // TODO Auto-generated method stub
-
+        // No hologram plugin available - do nothing
     }
 
     @Override
     public void onDisable() {
-        // TODO Auto-generated method stub
-
+        // No hologram plugin available - do nothing
     }
 
 }

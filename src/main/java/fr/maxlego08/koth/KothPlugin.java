@@ -74,7 +74,7 @@ public class KothPlugin extends ZPlugin implements fr.maxlego08.koth.api.KothPlu
                 Object implementation = clazz.getConstructor(fr.maxlego08.koth.api.KothPlugin.class).newInstance(this);
                 clazz.getMethod("register").invoke(implementation);
             } catch (Exception exception) {
-                exception.printStackTrace();
+                Logger.info("Failed to register zScheduler: " + exception.getMessage(), Logger.LogType.ERROR);
             }
         }
 
@@ -84,7 +84,7 @@ public class KothPlugin extends ZPlugin implements fr.maxlego08.koth.api.KothPlu
                 Class<?> clazz = Class.forName("fr.maxlego08.koth.hologram.DecentHologram");
                 this.kothHologram = (KothHologram) clazz.getConstructor().newInstance();
             } catch (Exception exception) {
-                exception.printStackTrace();
+                Logger.info("Failed to register DecentHologram: " + exception.getMessage(), Logger.LogType.ERROR);
             }
         }
 
@@ -94,7 +94,7 @@ public class KothPlugin extends ZPlugin implements fr.maxlego08.koth.api.KothPlu
                 Class<?> clazz = Class.forName("fr.maxlego08.koth.hologram.FancyHologram");
                 this.kothHologram = (KothHologram) clazz.getConstructor().newInstance();
             } catch (Exception exception) {
-                exception.printStackTrace();
+                Logger.info("Failed to register FancyHologram: " + exception.getMessage(), Logger.LogType.ERROR);
             }
         }
 

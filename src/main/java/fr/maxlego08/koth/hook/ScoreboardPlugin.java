@@ -2,6 +2,8 @@ package fr.maxlego08.koth.hook;
 
 import fr.maxlego08.koth.api.KothPlugin;
 import fr.maxlego08.koth.api.KothScoreboard;
+import fr.maxlego08.koth.hook.scoreboard.DefaultHook;
+import fr.maxlego08.koth.zcore.logger.Logger;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 
@@ -36,8 +38,8 @@ public enum ScoreboardPlugin {
             Class<?> clazz = Class.forName(this.className);
             return (KothScoreboard) clazz.getConstructor(KothPlugin.class).newInstance(plugin);
         } catch (Exception exception) {
-            exception.printStackTrace();
+            Logger.info("Failed to initialize " + this.pluginName + " scoreboard hook: " + exception.getMessage(), Logger.LogType.ERROR);
         }
-        return null;
+        return new DefaultHook();
     }
 }

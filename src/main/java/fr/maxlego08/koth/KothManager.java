@@ -102,6 +102,13 @@ public class KothManager extends ZUtils implements Savable {
         this.selections.put(uniqueId, selection);
     }
 
+    public void removeSelection(UUID uniqueId) {
+        Selection selection = this.selections.remove(uniqueId);
+        if (selection != null) {
+            selection.clear();
+        }
+    }
+
     public void saveKoth(Koth koth) {
 
         File file = new File(this.folder, koth.getFileName() + ".yml");
@@ -109,7 +116,7 @@ public class KothManager extends ZUtils implements Savable {
             try {
                 file.createNewFile();
             } catch (IOException exception) {
-                exception.printStackTrace();
+                Logger.info("Failed to create koth file " + file.getName() + ": " + exception.getMessage(), Logger.LogType.ERROR);
             }
         }
 
@@ -118,7 +125,7 @@ public class KothManager extends ZUtils implements Savable {
         try {
             configuration.save(file);
         } catch (IOException exception) {
-            exception.printStackTrace();
+            Logger.info("Failed to save koth file " + file.getName() + ": " + exception.getMessage(), Logger.LogType.ERROR);
         }
     }
 
@@ -132,8 +139,9 @@ public class KothManager extends ZUtils implements Savable {
             return;
         }
 
-        int distance = Math.abs(minLocation.getBlockX() - maxLocation.getBlockY());
-        if (distance <= 0) {
+        int distanceX = Math.abs(minLocation.getBlockX() - maxLocation.getBlockX());
+        int distanceZ = Math.abs(minLocation.getBlockZ() - maxLocation.getBlockZ());
+        if (distanceX <= 0 || distanceZ <= 0) {
             message(player, Message.KOTH_SIZE);
             return;
         }
