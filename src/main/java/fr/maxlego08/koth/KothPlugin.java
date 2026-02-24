@@ -88,6 +88,16 @@ public class KothPlugin extends ZPlugin implements fr.maxlego08.koth.api.KothPlu
             }
         }
 
+        if (this.isEnable(Plugins.FH)) {
+            Logger.info("Register FancyHologram implementation", Logger.LogType.INFO);
+            try {
+                Class<?> clazz = Class.forName("fr.maxlego08.koth.hologram.FancyHologram");
+                this.kothHologram = (KothHologram) clazz.getConstructor().newInstance();
+            } catch (Exception exception) {
+                exception.printStackTrace();
+            }
+        }
+
         KothPlaceholder kothPlaceholder = new KothPlaceholder(this.kothManager);
         kothPlaceholder.register();
 
