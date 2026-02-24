@@ -30,6 +30,7 @@ import fr.maxlego08.koth.zcore.utils.builder.TimerBuilder;
 import fr.maxlego08.koth.api.utils.interfaces.CollectionConsumer;
 import fr.mrmicky.fastboard.FastBoard;
 import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
@@ -447,6 +448,12 @@ public class ZKoth extends ZUtils implements Koth {
 
         if (this.blacklistTeamId.contains(this.kothTeam.getTeamId(player))) return;
 
+        // Block spectators from capturing
+        if (player.getGameMode() == GameMode.SPECTATOR) return;
+
+        // Check capture permission if enabled
+        if (Config.enableCapturePermission && !player.hasPermission(Config.capturePermission)) return;
+
         Cuboid cuboid = this.getCuboid();
         if (player.getWorld() != cuboid.getWorld()) return;
 
@@ -465,7 +472,7 @@ public class ZKoth extends ZUtils implements Koth {
             this.startCap(player);
             updateDisplay();
 
-        } else if (this.currentPlayer != null && !cuboid.contains(this.currentPlayer.getLocation())) {
+        } else if (this.currentPlayer != null && shouldLoseCapture(cuboid)) {
 
             KothLooseEvent event = new KothLooseEvent(this.currentPlayer, this);
             event.call();
@@ -487,6 +494,21 @@ public class ZKoth extends ZUtils implements Koth {
 
             updateDisplay();
         }
+    }
+
+    private boolean shouldLoseCapture(Cuboid cuboid) {
+        if (this.currentPlayer == null) return false;
+
+        // Player left the zone
+        if (!cuboid.contains(this.currentPlayer.getLocation())) return true;
+
+        // Player switched to spectator mode
+        if (this.currentPlayer.getGameMode() == GameMode.SPECTATOR) return true;
+
+        // Player lost capture permission
+        if (Config.enableCapturePermission && !this.currentPlayer.hasPermission(Config.capturePermission)) return true;
+
+        return false;
     }
 
     @Override
