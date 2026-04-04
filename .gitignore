@@ -121,3 +121,4 @@ runs/
 !gradle-wrapper.jar
 CLAUDE.md
 .claude
+build-and-deploy.sh
