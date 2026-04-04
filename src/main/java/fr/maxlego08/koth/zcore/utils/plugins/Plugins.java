@@ -10,8 +10,9 @@ public enum Plugins {
 	TRANSLATIONAPI("TranslationAPI"),
 	ZTRANSLATOR("zTranslator"),
 	DH("DecentHolograms"),
+	FH("FancyHolograms"),
 	ZSCHEDULERS("zSchedulers"),
-	
+
 	;
 
 	private final String name;

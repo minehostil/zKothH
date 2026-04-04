@@ -22,6 +22,7 @@ softdepend:
   - SimpleClan
   - zSchedulers
   - DecentHolograms
+  - FancyHolograms
   - HuskTowns
   - Lands
   - UltimateClans

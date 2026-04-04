@@ -30,6 +30,7 @@ import fr.maxlego08.koth.zcore.utils.builder.TimerBuilder;
 import fr.maxlego08.koth.api.utils.interfaces.CollectionConsumer;
 import fr.mrmicky.fastboard.FastBoard;
 import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
@@ -45,13 +46,13 @@ import org.bukkit.util.Vector;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -66,7 +67,7 @@ public class ZKoth extends ZUtils implements Koth {
     private final int stopAfterSeconds;
     private final int randomItemStacks;
     private final int scoreboardRadius;
-    private final Map<UUID, Integer> playersValues = new HashMap<>();
+    private final Map<UUID, Integer> playersValues = new ConcurrentHashMap<>();
     private final boolean enableStartCapMessage;
     private final boolean enableLooseCapMessage;
     private final boolean enableEverySecondsCapMessage;
@@ -91,6 +92,7 @@ public class ZKoth extends ZUtils implements Koth {
     private AtomicInteger remainingSeconds;
     private TimerTask timerTask;
     private TimerTask timerTaskStop;
+    private Timer stopTimer;
     private List<PlayerResult> playerResults = new ArrayList<>();
 
     public ZKoth(KothPlugin plugin, String fileName, KothType kothType, String name, int captureSeconds, Location minLocation, Location maxLocation, List<String> startCommands, List<String> endCommands, ScoreboardConfiguration cooldownScoreboard, ScoreboardConfiguration startScoreboard, int cooldownStart, int stopAfterSeconds, boolean enableStartCapMessage, boolean enableLooseCapMessage, boolean enableEverySecondsCapMessage, boolean enableEverySecondsCooldownMessage, HologramConfig hologramConfig, List<ItemStack> itemStacks, KothLootType kothLootType, DiscordWebhookConfig discordWebhookConfig, int randomItemStacks, List<String> blacklistTeamId, ProgressBar progressBar, List<RandomCommand> randomCommands, int maxRandomCommands) {
@@ -303,6 +305,10 @@ public class ZKoth extends ZUtils implements Koth {
         this.plugin.getScoreBoardManager().clearBoard();
         // this.resetBlocks();
         if (this.timerTaskStop != null) this.timerTaskStop.cancel();
+        if (this.stopTimer != null) {
+            this.stopTimer.cancel();
+            this.stopTimer = null;
+        }
 
         this.plugin.getKothHologram().end(this);
     }
@@ -414,7 +420,7 @@ public class ZKoth extends ZUtils implements Koth {
         }*/
 
         Koth koth = this;
-        Timer timer = new Timer();
+        this.stopTimer = new Timer();
         this.timerTaskStop = new TimerTask() {
             @Override
             public void run() {
@@ -422,7 +428,7 @@ public class ZKoth extends ZUtils implements Koth {
                 Bukkit.getScheduler().runTask(plugin, () -> stop(Bukkit.getConsoleSender()));
             }
         };
-        timer.schedule(this.timerTaskStop, this.stopAfterSeconds * 1000L);
+        this.stopTimer.schedule(this.timerTaskStop, this.stopAfterSeconds * 1000L);
 
         this.plugin.getKothHologram().start(this);
 
@@ -447,6 +453,12 @@ public class ZKoth extends ZUtils implements Koth {
 
         if (this.blacklistTeamId.contains(this.kothTeam.getTeamId(player))) return;
 
+        // Block spectators from capturing
+        if (player.getGameMode() == GameMode.SPECTATOR) return;
+
+        // Check capture permission if enabled
+        if (Config.enableCapturePermission && !player.hasPermission(Config.capturePermission)) return;
+
         Cuboid cuboid = this.getCuboid();
         if (player.getWorld() != cuboid.getWorld()) return;
 
@@ -465,7 +477,7 @@ public class ZKoth extends ZUtils implements Koth {
             this.startCap(player);
             updateDisplay();
 
-        } else if (this.currentPlayer != null && !cuboid.contains(this.currentPlayer.getLocation())) {
+        } else if (this.currentPlayer != null && shouldLoseCapture(cuboid)) {
 
             KothLooseEvent event = new KothLooseEvent(this.currentPlayer, this);
             event.call();
@@ -487,6 +499,21 @@ public class ZKoth extends ZUtils implements Koth {
 
             updateDisplay();
         }
+    }
+
+    private boolean shouldLoseCapture(Cuboid cuboid) {
+        if (this.currentPlayer == null) return false;
+
+        // Player left the zone
+        if (!cuboid.contains(this.currentPlayer.getLocation())) return true;
+
+        // Player switched to spectator mode
+        if (this.currentPlayer.getGameMode() == GameMode.SPECTATOR) return true;
+
+        // Player lost capture permission
+        if (Config.enableCapturePermission && !this.currentPlayer.hasPermission(Config.capturePermission)) return true;
+
+        return false;
     }
 
     @Override

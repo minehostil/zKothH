@@ -19,6 +19,8 @@ public class Config {
     public static String noFaction = "X";
     public static String noKoth = "X";
 	public static int removeChestSec = 120;
+	public static boolean enableCapturePermission = false;
+	public static String capturePermission = "zkoth.capture";
 
 	public static PlayerResult defaultPlayerResult = new PlayerResult("X", 0, "X", "X", "X");
 
@@ -64,6 +66,8 @@ public class Config {
 		noKoth = configuration.getString("noKoth", "X");
 		schedulerMillisecond = configuration.getLong("schedulerMillisecond", 1000);
 		removeChestSec = configuration.getInt("removeChestSec", 120);
+		enableCapturePermission = configuration.getBoolean("enableCapturePermission", false);
+		capturePermission = configuration.getString("capturePermission", "zkoth.capture");
 
 		defaultPlayerResult = new PlayerResult(
 				configuration.getString("defaultPlayerResult.playerName", "X"),

@@ -122,6 +122,14 @@ schedulerMillisecond: 1000
 
 removeChestSec: 120
 
+# Require permission to capture a KOTH
+# If enabled, players must have the permission defined below to capture
+# Note: Spectators are always blocked from capturing regardless of this setting
+enableCapturePermission: false
+
+# Permission required to capture a KOTH (only used if enableCapturePermission is true)
+capturePermission: "zkoth.capture"
+
 scoreboardRadius: 50
 
 # Value that will be used for score placeholders if the position does not exist.
