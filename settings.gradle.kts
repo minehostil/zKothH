@@ -16,7 +16,10 @@ pluginManagement {
 include("API")
 
 file("Hooks").listFiles()?.forEach { file ->
-    if (file.isDirectory and !file.name.equals("build")) {
+    if (file.isDirectory &&
+        file.name != "build" &&
+        file.name != "Hologram-FancyHolograms") {
+
         println("Include Hooks:${file.name}")
         include(":Hooks:${file.name}")
     }
