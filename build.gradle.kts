@@ -85,7 +85,9 @@ dependencies {
 
     // Include all hooks dynamically
     file("Hooks").listFiles()?.filter {
-        it.isDirectory && !it.name.equals("build")
+        it.isDirectory &&
+        it.name != "build" &&
+        it.name != "Hologram-FancyHolograms"
     }?.forEach { hookDir ->
         implementation(project(":Hooks:${hookDir.name}"))
     }
